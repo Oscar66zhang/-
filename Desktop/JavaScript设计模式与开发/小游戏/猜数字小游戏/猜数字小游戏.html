@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜数字小游戏</title>
+    <link rel="stylesheet" type="text/css" href="./样式.css"> 
+</head>
+<body>
+    <p>请输入1到100之间的数字</p>
+    <p style="color: aqua; font-size: 30px; font-weight: bolder;">进入数字游戏</p>
+    <div id="info"></div>
+    <input id="guess" type="number" placeholder="请输入1到100之间的数字"/><br>
+    <button id="start">猜数字</button>
+    <div id="again" style="display: none;">再来一局</div>
+    <div id="show" style="cursor: default;">历史战绩</div>
+    <script>
+        var num, i, ks,arr;
+        var info = document.getElementById('info');
+        var guess = document.getElementById('guess');
+        var start = document.getElementById('start');
+        var again = document.getElementById('again');
+        var show = document.getElementById('show');
+        
+        const initNum = function() {
+            num = Math.floor(Math.random() * 100) + 1; // 产生1~100之间的数字
+            i = 0;
+            again.style.display = "none";
+            info.innerHTML = "";
+            start.disabled = false;
+            ks = new Date();
+        }
+        initNum();
+
+        again.onclick = function() {
+            initNum();
+        }
+        guess.onfocus = function() {
+            guess.select();
+        }
+        guess.onchange = function() {
+            checknum();
+        }
+        
+        function showH() {  
+    show.innerHTML = "<div>历史战绩</div>";  
+  
+    if (localStorage.getItem("arr")) {  
+        arr = localStorage.getItem("arr").split(",");  
+        arr = arr.filter(function(item) {  
+            return item.trim() !== ""; // 移除空字符串  
+        });  
+        var n = arr.length - 1;  
+        var j = 1;  
+        while (n >= 0 && j <= 6) { // 如果你想要显示所有元素，可以移除j <= 6的条件  
+            show.innerHTML += "<div>" + arr[n] + "</div>";  
+            --n;  
+            ++j;  
+        }  
+    } else {  
+        show.innerHTML += "<div>没有历史战绩</div>";  
+    }  
+}  
+  
+document.addEventListener("DOMContentLoaded", function() {  
+    show.onclick = function() {  
+        showH();  
+    };  
+});
+        
+        var arr = [];
+        const checknum = function() {
+            var myguess = guess.value - 0;
+            ++i;
+            if (myguess == num) {
+                info.innerHTML = "😀,恭喜您,猜对了,幸运数字是:" + num;
+                var over = new Date().getTime();
+                var m = Math.floor((over - ks.getTime()) / 1000);
+                info.innerHTML += "<br><br>共输入" + i + "次,用时" + m + "秒<br><br>Game Over";
+                var t = ks.getFullYear() + "-" + (ks.getMonth() + 1) + "-" + ks.getDate() + " ";
+                t += ks.getHours() + ":" + ks.getMinutes() + ":" + ks.getSeconds();
+                var his = t + "开始-输入" + i + "次-用时" + m + "秒";
+                if (localStorage.getItem("arr")) {
+                    arr = localStorage.getItem("arr").split(",");
+                }
+                arr.push(his);
+                localStorage.setItem("arr", arr.join(","));
+                again.style.display = "block";
+                return;
+            }
+            if (myguess < num) {
+                info.innerHTML = "😀,第" + i + "次输入,您猜的数字" + myguess + "有点小";
+            } else {
+                info.innerHTML = "😀,第" + i + "次输入,您猜的数字" + myguess + "有点大";
+            }
+            if (i >= 10) {
+                info.innerHTML += "您已经没有机会了,真遗憾!";
+                start.disabled = true;
+                again.style.display = "block";
+            }
+        }
+        
+        // 添加猜数字按钮点击事件处理程序
+        start.onclick = function() {
+            checknum();
+        }
+    </script>
+</body>
+</html>
